@@ -1,5 +1,5 @@
 
-#include "serversocket.h"
+#include "socket.h"
 #include "log.h"
 #include "errors.h"
 
@@ -11,12 +11,12 @@
 #include <netdb.h> /* gethostbyname */
 
 
-ServerSocket::ServerSocket(int port, MessageFIFO &senderFIFO)
+Socket::Socket(int port, MessageFIFO &senderFIFO)
     : port(port), stopServer(false), senderFIFO(senderFIFO)
 { }
 
 
-int ServerSocket::bindServer()
+int Socket::bindSocket()
 {
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock == -1)
@@ -46,7 +46,7 @@ int ServerSocket::bindServer()
 }
 
 
-void ServerSocket::closeServer()
+void Socket::closeSocket()
 {
     // Put an empty string to wake up the sending thread.
     senderFIFO.put(std::string());

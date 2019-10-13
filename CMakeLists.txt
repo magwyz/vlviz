@@ -6,13 +6,13 @@ find_package(OpenCV REQUIRED)
 
 set(SOURCES src/main.cpp
             src/cameracapturer.cpp
-            src/serversocket.cpp
+            src/socket.cpp
             src/encoder/encoder.cpp)
 
 set(HEADERS include/cameracapturer.h
             include/errors.h
             include/log.h
-            include/serversocket.h
+            include/socket.h
             include/messagefifo.h
             include/encoder/encoder.h)
 

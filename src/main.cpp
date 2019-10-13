@@ -3,7 +3,7 @@
 #include "log.h"
 #include "cameracapturer.h"
 #include "encoder.h"
-#include "serversocket.h"
+#include "socket.h"
 
 
 int main(int argc, char** argv)
@@ -17,9 +17,9 @@ int main(int argc, char** argv)
     }
 
     Encoder encoder;
-    ServerSocket serverSocket(424242, encoder.senderFIFO);
+    Socket socket(424242, encoder.senderFIFO);
 
-    if (serverSocket.bindServer() != VLVIZ_SUCCESS)
+    if (socket.bindSocket() != VLVIZ_SUCCESS)
         return 1;
 
     while (true)
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
               break;
     }
 
-    serverSocket.closeServer();
+    socket.closeSocket();
 
     return 0;
 }

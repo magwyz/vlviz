@@ -1,5 +1,5 @@
-#ifndef SERVERSOCKET_H
-#define SERVERSOCKET_H
+#ifndef SOCKET_H
+#define SOCKET_H
 
 #include <thread>
 #include <mutex>
@@ -7,13 +7,13 @@
 #include "messagefifo.h"
 
 
-class ServerSocket
+class Socket
 {
 public:
-    ServerSocket(int port, MessageFIFO &senderFIFO);
+    Socket(int port, MessageFIFO &senderFIFO);
 
-    int bindServer();
-    void closeServer();
+    int bindSocket();
+    void closeSocket();
 
 private:
     int port;
@@ -34,4 +34,4 @@ void sendThread(bool &stopServer, std::mutex &stopServerMutex,
                 int sock, MessageFIFO &senderFIFO);
 
 
-#endif // SERVERSOCKET_H
+#endif // SOCKET_H

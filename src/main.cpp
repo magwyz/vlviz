@@ -24,19 +24,19 @@ int main(int argc, char** argv)
 
     while (true)
     {
-          cv::Mat frame;
-          cap.getLastFrame(frame);
+        cv::Mat frame;
+        cap.getLastFrame(frame);
 
-          if (encoder.addFrame(frame) != VLVIZ_SUCCESS)
-          {
-              msg("Error encoding the last frame.");
-              break;
-          }
+        if (encoder.addFrame(frame) != VLVIZ_SUCCESS)
+        {
+            msg("Error encoding the last frame.");
+            break;
+        }
 
-          imshow("this is you, smile! :)", frame);
+        imshow("this is you, smile! :)", frame);
 
-          if (cv::waitKey(10) == 27)
-              break;
+        if (cv::waitKey(10) == 27)
+            break;
     }
 
     socket.closeSocket();

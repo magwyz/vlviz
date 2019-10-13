@@ -15,5 +15,7 @@ static void msg(const char *s)
     msg(std::string(s));
 }
 
+#define ts std::to_string
+
 
 #endif // LOG_H

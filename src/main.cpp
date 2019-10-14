@@ -1,45 +1,51 @@
-#include <opencv2/opencv.hpp>
-
 #include "log.h"
-#include "cameracapturer.h"
-#include "encoder.h"
-#include "socket.h"
+#include "sender.h"
 
+
+void usage()
+{
+    msg("Usage: vlviz -s/-r");
+}
 
 int main(int argc, char** argv)
 {
-    CameraCapturer cap;
-
-    if (cap.open() != VLVIZ_SUCCESS)
+    if (argc != 2)
     {
-        msg("Could not open camera");
+        usage();
         return 1;
     }
 
-    Encoder encoder;
-    Socket socket(424242, encoder.senderFIFO);
+    std::string modeStr(argv[1]);
+    enum {
+        SENDER,
+        RECEIVER
+    } mode;
 
-    if (socket.bindSocket() != VLVIZ_SUCCESS)
-        return 1;
-
-    while (true)
+    if (modeStr == std::string("-s"))
+        mode = SENDER;
+    else if (modeStr == std::string("-r"))
+        mode = RECEIVER;
+    else
     {
-        cv::Mat frame;
-        cap.getLastFrame(frame);
-
-        if (encoder.addFrame(frame) != VLVIZ_SUCCESS)
-        {
-            msg("Error encoding the last frame.");
-            break;
-        }
-
-        imshow("this is you, smile! :)", frame);
-
-        if (cv::waitKey(10) == 27)
-            break;
+        usage();
+        return 1;
     }
 
-    socket.closeSocket();
+
+    switch (mode) {
+    case SENDER:
+    {
+        Sender s;
+        s.start();
+        s.join();
+        break;
+    }
+    default:
+        break;
+    }
+
+
+
 
     return 0;
 }

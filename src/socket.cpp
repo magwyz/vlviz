@@ -37,9 +37,8 @@ int Socket::bindSocket()
         return VLVIZ_ENETWORK;
     }
 
-    rt = std::thread(recvThread, std::ref(stopServer), std::ref(stopServerMutex), sock);
-    st = std::thread(sendThread, std::ref(stopServer), std::ref(stopServerMutex),
-                     sock, std::ref(senderFIFO));
+    rt = std::thread(&Socket::recvThread, this);
+    st = std::thread(&Socket::sendThread, this);
 
 
     return VLVIZ_SUCCESS;
@@ -61,8 +60,7 @@ void Socket::closeSocket()
 }
 
 
-void recvThread(bool &stopServer, std::mutex &stopServerMutex,
-                int sock)
+void Socket::recvThread()
 {
     while (true)
     {
@@ -76,8 +74,7 @@ void recvThread(bool &stopServer, std::mutex &stopServerMutex,
 }
 
 
-void sendThread(bool &stopServer, std::mutex &stopServerMutex,
-                int sock, MessageFIFO &senderFIFO)
+void Socket::sendThread()
 {
     while (true)
     {

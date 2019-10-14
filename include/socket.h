@@ -16,6 +16,9 @@ public:
     void closeSocket();
 
 private:
+    void recvThread();
+    void sendThread();
+
     int port;
     int sock;
 
@@ -27,11 +30,6 @@ private:
 
     MessageFIFO &senderFIFO;
 };
-
-void recvThread(bool &stopServer, std::mutex &stopServerMutex,
-                int sock);
-void sendThread(bool &stopServer, std::mutex &stopServerMutex,
-                int sock, MessageFIFO &senderFIFO);
 
 
 #endif // SOCKET_H

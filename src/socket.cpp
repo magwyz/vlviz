@@ -12,7 +12,7 @@
 
 
 Socket::Socket(int port, MessageFIFO &senderFIFO)
-    : port(port), stopServer(false), senderFIFO(senderFIFO)
+    : port(port), stop(false), senderFIFO(senderFIFO)
 { }
 
 
@@ -52,8 +52,8 @@ void Socket::closeSocket()
 
     close(sock);
     {
-        std::lock_guard<std::mutex> lock(stopServerMutex);
-        stopServer = true;
+        std::lock_guard<std::mutex> lock(stopMutex);
+        stop = true;
     }
     rt.join();
     st.join();
@@ -65,8 +65,8 @@ void Socket::recvThread()
     while (true)
     {
         {
-            std::lock_guard<std::mutex> lock(stopServerMutex);
-            if (stopServer)
+            std::lock_guard<std::mutex> lock(stopMutex);
+            if (stop)
                 break;
         }
 
@@ -79,8 +79,8 @@ void Socket::sendThread()
     while (true)
     {
         {
-            std::lock_guard<std::mutex> lock(stopServerMutex);
-            if (stopServer)
+            std::lock_guard<std::mutex> lock(stopMutex);
+            if (stop)
                 break;
         }
 

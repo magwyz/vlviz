@@ -22,8 +22,8 @@ private:
     int port;
     int sock;
 
-    bool stopServer;
-    std::mutex stopServerMutex;
+    bool stop;
+    std::mutex stopMutex;
 
     std::thread rt;
     std::thread st;

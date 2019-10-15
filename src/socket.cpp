@@ -11,8 +11,10 @@
 #include <netdb.h> /* gethostbyname */
 
 
-Socket::Socket(int port, MessageFIFO &senderFIFO)
-    : port(port), stop(false), senderFIFO(senderFIFO)
+Socket::Socket(int port,
+               MessageFIFO &senderFIFO, MessageFIFO &receiverFIFO)
+    : port(port), stop(false),
+      senderFIFO(senderFIFO), receiverFIFO(receiverFIFO)
 { }
 
 
@@ -70,6 +72,19 @@ void Socket::recvThread()
                 break;
         }
 
+        char buff[1500] = { 0 };
+        sockaddr_in from;
+        socklen_t fromlen = sizeof(from);
+        int ret = recvfrom(sock, buff, sizeof(buff), 0,
+                           reinterpret_cast<sockaddr*>(&from), &fromlen);
+        if (ret <= 0)
+        {
+            msg("Error receiving data");
+            break;
+        }
+
+        receiverFIFO.put(std::string(buff, ret));
+
     }
 }
 
@@ -89,7 +104,7 @@ void Socket::sendThread()
         if (data.empty())
             break;
 
-        unsigned portDst = 4212;
+        unsigned portDst = port;
 
         sockaddr_in to = { 0 };
         inet_pton(AF_INET, "127.0.0.1", &to.sin_addr.s_addr);

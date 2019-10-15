@@ -10,7 +10,8 @@
 class Socket
 {
 public:
-    Socket(int port, MessageFIFO &senderFIFO);
+    Socket(int port,
+           MessageFIFO &senderFIFO, MessageFIFO &receiverFIFO);
 
     int bindSocket();
     void closeSocket();
@@ -29,6 +30,7 @@ private:
     std::thread st;
 
     MessageFIFO &senderFIFO;
+    MessageFIFO &receiverFIFO;
 };
 
 

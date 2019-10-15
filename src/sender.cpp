@@ -31,7 +31,9 @@ void Sender::threadFunc()
     }
 
     Encoder encoder;
-    Socket socket(424242, encoder.senderFIFO);
+    Socket socket(4212,
+                  encoder.senderFIFO,
+                  encoder.receiverFIFO);
 
     if (socket.bindSocket() != VLVIZ_SUCCESS)
         return;

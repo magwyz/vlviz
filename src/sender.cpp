@@ -6,6 +6,7 @@
 #include "encoder.h"
 #include "socket.h"
 #include "log.h"
+#include "encoderevent.h"
 
 
 void Sender::start()
@@ -43,9 +44,11 @@ void Sender::threadFunc()
         cv::Mat frame;
         cap.getLastFrame(frame);
 
-        if (encoder.addFrame(frame) != VLVIZ_SUCCESS)
+        NewFrameEvent *ev = new NewFrameEvent(frame);
+
+        if (encoder.postEvent(ev))
         {
-            msg("Error encoding the last frame.");
+            msg("Error pushing the last frame.");
             break;
         }
 
@@ -55,5 +58,6 @@ void Sender::threadFunc()
             break;
     }
 
+    encoder.stopEncoder();
     socket.closeSocket();
 }

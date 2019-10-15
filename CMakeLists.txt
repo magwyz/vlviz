@@ -16,7 +16,8 @@ set(HEADERS include/cameracapturer.h
             include/socket.h
             include/messagefifo.h
             include/encoder/encoder.h
-            include/sender.h)
+            include/sender.h
+            include/encoder/encoderevent.h)
 
 include_directories(include include/encoder)
 

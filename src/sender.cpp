@@ -32,7 +32,7 @@ void Sender::threadFunc()
     }
 
     Encoder encoder;
-    Socket socket(4212,
+    Socket socket(4213, 4212,
                   encoder.senderFIFO,
                   encoder.receiverFIFO);
 

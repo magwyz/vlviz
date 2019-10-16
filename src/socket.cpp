@@ -11,9 +11,9 @@
 #include <netdb.h> /* gethostbyname */
 
 
-Socket::Socket(int port,
+Socket::Socket(int dstPort, int localPort,
                MessageFIFO &senderFIFO, MessageFIFO &receiverFIFO)
-    : port(port), stop(false),
+    : dstPort(dstPort), localPort(localPort), stop(false),
       senderFIFO(senderFIFO), receiverFIFO(receiverFIFO)
 { }
 
@@ -31,7 +31,7 @@ int Socket::bindSocket()
 
     sin.sin_addr.s_addr = htonl(INADDR_ANY);
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(port);
+    sin.sin_port = htons(localPort);
 
     if (bind(sock, (struct sockaddr *)&sin, sizeof(sin)) == -1)
     {
@@ -104,12 +104,10 @@ void Socket::sendThread()
         if (data.empty())
             break;
 
-        unsigned portDst = port;
-
         sockaddr_in to = { 0 };
         inet_pton(AF_INET, "127.0.0.1", &to.sin_addr.s_addr);
         to.sin_family = AF_INET;
-        to.sin_port = htons(portDst);
+        to.sin_port = htons(dstPort);
 
         int ret = sendto(sock, data.data(),
                          static_cast<int>(data.length()),

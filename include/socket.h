@@ -10,7 +10,7 @@
 class Socket
 {
 public:
-    Socket(int port,
+    Socket(int dstPort, int localPort,
            MessageFIFO &senderFIFO, MessageFIFO &receiverFIFO);
 
     int bindSocket();
@@ -20,7 +20,8 @@ private:
     void recvThread();
     void sendThread();
 
-    int port;
+    int dstPort;
+    int localPort;
     int sock;
 
     bool stop;

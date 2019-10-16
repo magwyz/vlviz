@@ -1,5 +1,6 @@
 #include "log.h"
 #include "sender.h"
+#include "receiver.h"
 
 
 void usage()
@@ -31,7 +32,6 @@ int main(int argc, char** argv)
         return 1;
     }
 
-
     switch (mode) {
     case SENDER:
     {
@@ -40,12 +40,16 @@ int main(int argc, char** argv)
         s.join();
         break;
     }
+    case RECEIVER:
+    {
+        Receiver r;
+        r.start();
+        r.join();
+        break;
+    }
     default:
         break;
     }
-
-
-
 
     return 0;
 }

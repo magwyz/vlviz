@@ -12,9 +12,9 @@
 
 
 Socket::Socket(int dstPort, int localPort,
-               MessageFIFO &senderFIFO, MessageFIFO &receiverFIFO)
+               MessageHandler &messageHandler)
     : dstPort(dstPort), localPort(localPort), stop(false),
-      senderFIFO(senderFIFO), receiverFIFO(receiverFIFO)
+      messageHandler(messageHandler)
 { }
 
 
@@ -50,7 +50,7 @@ int Socket::bindSocket()
 void Socket::closeSocket()
 {
     // Put an empty string to wake up the sending thread.
-    senderFIFO.put(std::string());
+    messageHandler.senderFIFO.put(std::string());
 
     close(sock);
     {
@@ -83,7 +83,7 @@ void Socket::recvThread()
             break;
         }
 
-        receiverFIFO.put(std::string(buff, ret));
+        messageHandler.postNewMessage(std::string(buff, ret));
 
     }
 }
@@ -99,7 +99,7 @@ void Socket::sendThread()
                 break;
         }
 
-        std::string data = senderFIFO.get();
+        std::string data = messageHandler.senderFIFO.get();
         // FIXME hack: if we get an empty string, it's time to quit...
         if (data.empty())
             break;

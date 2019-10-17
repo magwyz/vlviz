@@ -10,7 +10,8 @@ set(SOURCES src/main.cpp
             src/encoder/encoder.cpp
             src/sender.cpp
             src/receiver.cpp
-            src/decoder/decoder.cpp)
+            src/decoder/decoder.cpp
+            src/codec/quantizedframe.cpp)
 
 set(HEADERS include/cameracapturer.h
             include/errors.h
@@ -21,9 +22,16 @@ set(HEADERS include/cameracapturer.h
             include/sender.h
             include/encoder/encoderevent.h
             include/receiver.h
-            include/decoder/decoder.h)
+            include/decoder/decoder.h
+            include/messagehandler.h
+            include/codec/definitions.h
+            include/codec/quantizedframe.h
+            include/codec/rawframe.h)
 
-include_directories(include include/encoder include/decoder)
+include_directories(include
+                    include/encoder
+                    include/decoder
+                    include/codec)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 

@@ -3,23 +3,22 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "messagefifo.h"
+#include "messagehandler.h"
 
 
-class Decoder
+class Decoder : public MessageHandler
 {
 public:
     Decoder();
 
+    int postNewMessage(std::string data);
     void processData();
-
-    MessageFIFO senderFIFO;
-    MessageFIFO receiverFIFO;
 
     friend class Receiver;
 private:
     cv::Mat curFrame;
 
+    MessageFIFO receiverFIFO;
 };
 
 #endif // DECODER_H

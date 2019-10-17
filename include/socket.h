@@ -4,14 +4,14 @@
 #include <thread>
 #include <mutex>
 
-#include "messagefifo.h"
+#include "messagehandler.h"
 
 
 class Socket
 {
 public:
     Socket(int dstPort, int localPort,
-           MessageFIFO &senderFIFO, MessageFIFO &receiverFIFO);
+           MessageHandler &messageHandler);
 
     int bindSocket();
     void closeSocket();
@@ -30,8 +30,7 @@ private:
     std::thread rt;
     std::thread st;
 
-    MessageFIFO &senderFIFO;
-    MessageFIFO &receiverFIFO;
+    MessageHandler &messageHandler;
 };
 
 

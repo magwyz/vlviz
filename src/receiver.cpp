@@ -20,9 +20,7 @@ void Receiver::join()
 void Receiver::threadFunc()
 {
     Decoder decoder;
-    Socket socket(4212, 4213,
-                  decoder.senderFIFO,
-                  decoder.receiverFIFO);
+    Socket socket(4212, 4213, decoder);
 
     if (socket.bindSocket() != VLVIZ_SUCCESS)
         return;

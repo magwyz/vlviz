@@ -15,6 +15,8 @@ public:
 
     RawFrame getRawFrame();
 
+    uint8_t &at(unsigned x, unsigned y, unsigned plane);
+
     unsigned width;
     unsigned height;
 

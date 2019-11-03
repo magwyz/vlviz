@@ -48,3 +48,9 @@ RawFrame QuantizedFrame::getRawFrame()
 
     return RawFrame(yuvMat, true);
 }
+
+
+uint8_t &QuantizedFrame::at(unsigned x, unsigned y, unsigned plane)
+{
+    return planes[plane].at<uint8_t>(y, x);
+}

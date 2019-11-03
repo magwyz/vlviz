@@ -28,7 +28,10 @@ public:
 
 private:
     void processThread();
-    int selectMostDiffTransBlock(unsigned &bx, unsigned &by);
+    uint64_t computeSAD(unsigned xStart, unsigned xEnd,
+                        unsigned yStart, unsigned yEnd);
+    void reconstructBlock(unsigned bi, unsigned bj);
+    void selectMostDiffTransBlock(unsigned &bi, unsigned &bj);
 
     std::thread t;
 

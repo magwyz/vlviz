@@ -77,7 +77,7 @@ void Encoder::processThread()
         }
         else
         {
-            std::string data(reinterpret_cast<char *>(curCapturedFrame.data), 100);
+            std::string data("test");
             senderFIFO.put(data);
         }
     }

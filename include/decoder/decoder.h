@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "messagehandler.h"
+#include "quantizedframe.h"
 
 
 class Decoder : public MessageHandler
@@ -16,7 +17,7 @@ public:
 
     friend class Receiver;
 private:
-    cv::Mat curFrame;
+    QuantizedFrame curFrame;
 
     MessageFIFO receiverFIFO;
 };

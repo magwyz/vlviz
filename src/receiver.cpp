@@ -3,6 +3,7 @@
 #include "decoder.h"
 #include "socket.h"
 #include "errors.h"
+#include "rawframe.h"
 
 
 void Receiver::start()
@@ -29,7 +30,7 @@ void Receiver::threadFunc()
     {
         decoder.processData();
 
-        imshow("Decoded frame", decoder.curFrame);
+        cv::imshow("Decoded frame", decoder.curFrame.getRawFrame().getRGBMat());
 
         if (cv::waitKey(10) == 27)
             break;

@@ -8,6 +8,7 @@
 #include <opencv2/opencv.hpp>
 
 #include "messagehandler.h"
+#include "quantizedframe.h"
 
 class EncoderEvent;
 
@@ -37,8 +38,8 @@ private:
     std::deque<EncoderEvent *> events;
     std::condition_variable eventsCondVar;
 
-    cv::Mat curCapturedFrame; // Current quantized captured frame
-    cv::Mat reconstructedFrame; // Current quantized reconstructed frame
+    QuantizedFrame curCapturedFrame; // Current quantized captured frame
+    QuantizedFrame reconstructedFrame; // Current quantized reconstructed frame
 
     unsigned width, height;
     unsigned nbTransBlockX, nbTransBlockY;

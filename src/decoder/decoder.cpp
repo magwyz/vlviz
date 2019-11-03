@@ -6,7 +6,7 @@
 
 Decoder::Decoder()
 {
-    curFrame = cv::Mat(480, 640, CV_8UC3);
+    curFrame = QuantizedFrame(640, 480);
 }
 
 

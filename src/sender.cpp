@@ -39,10 +39,10 @@ void Sender::threadFunc()
 
     while (true)
     {
-        cv::Mat frame;
-        cap.getLastFrame(frame);
+        RawFrame rf;
+        cap.getLastFrame(rf);
 
-        NewFrameEvent *ev = new NewFrameEvent(frame);
+        NewFrameEvent *ev = new NewFrameEvent(rf);
 
         if (encoder.postEvent(ev))
         {
@@ -50,7 +50,7 @@ void Sender::threadFunc()
             break;
         }
 
-        imshow("this is you, smile! :)", frame);
+        imshow("this is you, smile! :)", rf.getRGBMat());
 
         if (cv::waitKey(10) == 27)
             break;

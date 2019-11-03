@@ -6,6 +6,7 @@
 #include "errors.h"
 #include "encoder.h"
 #include "log.h"
+#include "rawframe.h"
 
 
 class EncoderEvent
@@ -23,24 +24,23 @@ public:
 class NewFrameEvent : public EncoderEvent
 {
 public:
-    NewFrameEvent(cv::Mat frame)
+    NewFrameEvent(RawFrame frame)
         : frame(frame)
     { }
 
     virtual int updateEncoder(Encoder *encoder)
     {
         // Update the current frame of the encoder
-        if (frame.cols != encoder->width
-            && frame.rows != encoder->height)
-            resize(frame, encoder->curCapturedFrame,
-                   cv::Size(encoder->width, encoder->height));
+        if (frame.width != encoder->width
+            && frame.height != encoder->height)
+            frame.resize(encoder->width, encoder->height);
         else
             encoder->curCapturedFrame = frame;
         return VLVIZ_SUCCESS;
     }
 
 private:
-    cv::Mat frame;
+    RawFrame frame;
 };
 
 
@@ -56,8 +56,8 @@ public:
         msg("Received: " + data);
         if (data == std::string("hello"))
         {
-            encoder->reconstructedFrame = cv::Mat(
-                    encoder->width, encoder->height, CV_8UC3);
+            encoder->reconstructedFrame = QuantizedFrame(
+                    encoder->width, encoder->height);
             encoder->hasClient = true;
         }
 

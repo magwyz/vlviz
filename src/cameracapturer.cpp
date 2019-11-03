@@ -12,9 +12,11 @@ int CameraCapturer::open()
 }
 
 
-int CameraCapturer::getLastFrame(cv::Mat &frame)
+int CameraCapturer::getLastFrame(RawFrame &rf)
 {
+    cv::Mat frame;
     bool hasReadFrame = cap.read(frame);
+    rf = RawFrame(frame);
 
     return hasReadFrame ? VLVIZ_SUCCESS : VLVIZ_NO_FRAME;
 }

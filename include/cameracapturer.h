@@ -3,6 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "rawframe.h"
 #include "errors.h"
 
 class CameraCapturer
@@ -10,7 +11,7 @@ class CameraCapturer
 public:
     int open();
 
-    int getLastFrame(cv::Mat &frame);
+    int getLastFrame(RawFrame &rf);
 
 private:
     cv::VideoCapture cap;

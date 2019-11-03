@@ -24,6 +24,8 @@ public:
     RawFrame(const RawFrame &rf2)
     {
         f = rf2.f;
+        width = rf2.width;
+        height = rf2.height;
     }
 
     cv::Mat getRGBMat()

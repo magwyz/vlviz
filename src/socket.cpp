@@ -64,6 +64,18 @@ void Socket::closeSocket()
 
 void Socket::recvThread()
 {
+    struct timeval stTimeOut;
+
+    fd_set stReadFDS;
+    fd_set stExcepFDS;
+
+    FD_ZERO(&stReadFDS);
+    FD_ZERO(&stExcepFDS);
+
+    // Timeout of one second
+    stTimeOut.tv_sec = 1;
+    stTimeOut.tv_usec = 0;
+
     while (true)
     {
         {
@@ -72,19 +84,38 @@ void Socket::recvThread()
                 break;
         }
 
-        char buff[1500] = { 0 };
-        sockaddr_in from;
-        socklen_t fromlen = sizeof(from);
-        int ret = recvfrom(sock, buff, sizeof(buff), 0,
-                           reinterpret_cast<sockaddr*>(&from), &fromlen);
-        if (ret <= 0)
+        FD_SET(sock, &stReadFDS);
+        FD_SET(sock, &stExcepFDS);
+
+        int t = select(sock + 1, &stReadFDS, NULL, &stExcepFDS, &stTimeOut);
+        if (t == -1)
         {
-            msg("Error receiving data");
-            break;
+             msg("Call to select() failed");
+             break;
         }
 
-        messageHandler.postNewMessage(std::string(buff, ret));
-
+        if (t != 0)
+        {
+             if (FD_ISSET(sock, &stExcepFDS))
+             {
+                 msg("Socket exception");
+                 break;
+             }
+             if (FD_ISSET(sock, &stReadFDS))
+             {
+                 char buff[1500] = { 0 };
+                 sockaddr_in from;
+                 socklen_t fromlen = sizeof(from);
+                 int ret = recvfrom(sock, buff, sizeof(buff), 0,
+                                    reinterpret_cast<sockaddr*>(&from), &fromlen);
+                 if (ret <= 0)
+                 {
+                     msg("Error receiving data");
+                     break;
+                 }
+                 messageHandler.postNewMessage(std::string(buff, ret));
+             }
+        }
     }
 }
 

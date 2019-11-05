@@ -50,7 +50,7 @@ void Sender::threadFunc()
             break;
         }
 
-        imshow("this is you, smile! :)", rf.getRGBMat());
+        //imshow("this is you, smile! :)", rf.getRGBMat());
 
         if (cv::waitKey(10) == 27)
             break;

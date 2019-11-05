@@ -36,6 +36,10 @@ public:
             frame.resize(encoder->width, encoder->height);
         else
             encoder->curCapturedFrame = frame;
+
+        if (encoder->hasClient)
+            encoder->rankDiffTransBlock();
+
         return VLVIZ_SUCCESS;
     }
 
@@ -66,6 +70,18 @@ public:
 
 private:
     std::string data;
+};
+
+
+class TickEvent : public EncoderEvent
+{
+public:
+    TickEvent() { }
+
+    virtual int updateEncoder(Encoder *encoder)
+    {
+        return VLVIZ_SUCCESS;
+    }
 };
 
 

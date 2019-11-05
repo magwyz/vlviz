@@ -1,5 +1,7 @@
 
 #include <string>
+#include <future>
+#include <chrono>
 
 #include "encoder.h"
 #include "errors.h"
@@ -53,6 +55,8 @@ int Encoder::postEvent(EncoderEvent *ev)
 
 void Encoder::processThread()
 {
+    auto lastTime = std::chrono::system_clock::now();
+
     while (true)
     {
         std::unique_lock<std::mutex> lk(stopMutex);
@@ -78,20 +82,43 @@ void Encoder::processThread()
         else
         {
             // Send a new block
-            unsigned bi, bj;
-            selectMostDiffTransBlock(bi, bj);
+            if (rankedTransBlock.empty())
+                continue;
+
+            const RankedTransBlock &rtb = rankedTransBlock.top();
+            unsigned bi = rtb.bi;
+            unsigned bj = rtb.bj;
+            rankedTransBlock.pop();
 
             msg("Most diff block: " + std::to_string(bi) + " " + std::to_string(bj));
 
             reconstructBlock(bi, bj);
 
-            imshow("Reconstructed frame", reconstructedFrame.getRawFrame().getRGBMat());
+            auto curTime = std::chrono::system_clock::now();
 
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(curTime - lastTime)
+                > std::chrono::milliseconds(16))
+            {
+                msg("Display reconstructed frame");
+                imshow("Reconstructed frame", reconstructedFrame.getRawFrame().getRGBMat());
+                lastTime = curTime;
+            }
 
-            std::string data("test");
-            senderFIFO.put(data);
+            //std::string data("test");
+            //senderFIFO.put(data);
+            sendTickEvent(10);
         }
     }
+}
+
+
+void Encoder::sendTickEvent(int timeMs)
+{
+    std::async(std::launch::async, [&]() {
+        std::this_thread::sleep_for(std::chrono::microseconds(timeMs));
+        EncoderEvent *ev = new TickEvent();
+        postEvent(ev);
+    });
 }
 
 
@@ -127,11 +154,9 @@ uint64_t Encoder::computeSAD(unsigned xStart, unsigned xEnd,
 }
 
 
-void Encoder::selectMostDiffTransBlock(unsigned &bi, unsigned &bj)
+void Encoder::rankDiffTransBlock()
 {
-    uint64_t maxSum = 0;
-    bi = 0;
-    bj = 0;
+    rankedTransBlock = std::priority_queue<RankedTransBlock>();
 
     for (unsigned i = 0; i < nbTransBlockX; ++i)
         for (unsigned j = 0; j < nbTransBlockY; j++)
@@ -143,11 +168,7 @@ void Encoder::selectMostDiffTransBlock(unsigned &bi, unsigned &bj)
             unsigned yEnd = std::min((j + 1) * TRANSMISSION_BLOCK_SIZE, height);
 
             uint64_t sum = computeSAD(xStart, xEnd, yStart, yEnd);
-            if (sum > maxSum)
-            {
-                bi = i;
-                bj = j;
-                maxSum = sum;
-            }
+
+            rankedTransBlock.emplace(RankedTransBlock(i, j, sum));
         }
 }

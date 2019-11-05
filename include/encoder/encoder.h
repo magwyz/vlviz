@@ -13,6 +13,24 @@
 class EncoderEvent;
 
 
+class RankedTransBlock
+{
+public:
+    RankedTransBlock(unsigned bi, unsigned bj, uint64_t sad)
+        : bi(bi), bj(bj), sad(sad)
+    { }
+
+    bool operator<(RankedTransBlock rtb2) const
+    {
+        return sad < rtb2.sad;
+    }
+
+    unsigned bi;
+    unsigned bj;
+    uint64_t sad;
+};
+
+
 class Encoder : public MessageHandler
 {
 public:
@@ -28,10 +46,11 @@ public:
 
 private:
     void processThread();
+    void sendTickEvent(int timeMs);
     uint64_t computeSAD(unsigned xStart, unsigned xEnd,
                         unsigned yStart, unsigned yEnd);
     void reconstructBlock(unsigned bi, unsigned bj);
-    void selectMostDiffTransBlock(unsigned &bi, unsigned &bj);
+    void rankDiffTransBlock();
 
     std::thread t;
 
@@ -48,6 +67,8 @@ private:
     unsigned nbTransBlockX, nbTransBlockY;
 
     bool hasClient; // A client is ready to receive the data we send.
+
+    std::priority_queue<RankedTransBlock> rankedTransBlock;
 };
 
 #endif // ENCODER_H

@@ -17,6 +17,8 @@ public:
 
     friend class Receiver;
 private:
+    void decodeUncompressedBlock(std::string blockData);
+
     QuantizedFrame curFrame;
 
     MessageFIFO receiverFIFO;

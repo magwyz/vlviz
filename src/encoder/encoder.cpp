@@ -7,6 +7,7 @@
 #include "errors.h"
 #include "encoderevent.h"
 #include "log.h"
+#include "helpers.h"
 
 #include "definitions.h"
 
@@ -104,11 +105,32 @@ void Encoder::processThread()
                 lastTime = curTime;
             }
 
-            //std::string data("test");
-            //senderFIFO.put(data);
-            sendTickEvent(10);
+            std::string packet = uint8Encode(UNCOMPRESSED_TRANSMISSION_BLOCK)
+                + uint8Encode(bi) + uint8Encode(bj)
+                + getUncompressedBlockData(bi, bj);
+            senderFIFO.put(packet);
+            sendTickEvent(100);
         }
     }
+}
+
+
+std::string Encoder::getUncompressedBlockData(unsigned bi, unsigned bj)
+{
+    std::string ret(TRANSMISSION_BLOCK_SIZE * TRANSMISSION_BLOCK_SIZE, 0);
+
+    unsigned xStart = bi * TRANSMISSION_BLOCK_SIZE;
+    unsigned xEnd = std::min((bi + 1) * TRANSMISSION_BLOCK_SIZE, width);
+
+    unsigned yStart = bj * TRANSMISSION_BLOCK_SIZE;
+    unsigned yEnd = std::min((bj + 1) * TRANSMISSION_BLOCK_SIZE, height);
+
+    unsigned i = 0;
+    for (unsigned x = xStart; x < xEnd; ++x)
+        for (unsigned y = yStart; y < yEnd; ++y)
+            ret[i++] = reinterpret_cast<uint8_t>(curCapturedFrame.at(x, y, 0));
+
+    return ret;
 }
 
 

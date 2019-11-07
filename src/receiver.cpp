@@ -26,14 +26,22 @@ void Receiver::threadFunc()
     if (socket.bindSocket() != VLVIZ_SUCCESS)
         return;
 
+    auto lastTime = std::chrono::system_clock::now();
+
     while (true)
     {
         decoder.processData();
 
-        cv::imshow("Decoded frame", decoder.curFrame.getRawFrame().getRGBMat());
+        auto curTime = std::chrono::system_clock::now();
 
-        if (cv::waitKey(10) == 27)
-            break;
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(curTime - lastTime)
+            > std::chrono::milliseconds(16))
+        {
+            cv::imshow("Decoded frame", decoder.curFrame.getRawFrame().getRGBMat());
+            if (cv::waitKey(1) == 27)
+                break;
+            lastTime = curTime;
+        }
     }
 
     socket.closeSocket();

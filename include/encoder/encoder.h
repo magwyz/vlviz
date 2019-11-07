@@ -46,6 +46,7 @@ public:
 
 private:
     void processThread();
+    std::string getUncompressedBlockData(unsigned bi, unsigned bj);
     void sendTickEvent(int timeMs);
     uint64_t computeSAD(unsigned xStart, unsigned xEnd,
                         unsigned yStart, unsigned yEnd);

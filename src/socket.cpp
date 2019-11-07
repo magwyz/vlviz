@@ -150,6 +150,6 @@ void Socket::sendThread()
             break;
         }
 
-        msg("Data send: " + ts(data.length()));
+        msg("Data sent: " + ts(data.length()));
     }
 }

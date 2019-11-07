@@ -4,4 +4,6 @@
 
 #define TRANSMISSION_BLOCK_SIZE 32 // Transmission blocks size
 
+#define UNCOMPRESSED_TRANSMISSION_BLOCK 1
+
 #endif // DEFINITIONS_H

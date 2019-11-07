@@ -26,7 +26,8 @@ set(HEADERS include/cameracapturer.h
             include/messagehandler.h
             include/codec/definitions.h
             include/codec/quantizedframe.h
-            include/codec/rawframe.h)
+            include/codec/rawframe.h
+            include/codec/helpers.h)
 
 include_directories(include
                     include/encoder

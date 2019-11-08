@@ -4,6 +4,7 @@
 #include "errors.h"
 #include "helpers.h"
 #include "definitions.h"
+#include "decoderevent.h"
 
 
 Decoder::Decoder()
@@ -14,28 +15,32 @@ Decoder::Decoder()
 
 int Decoder::postNewMessage(std::string data)
 {
-    receiverFIFO.put(data);
-    return VLVIZ_SUCCESS;
+    DecoderEvent *ev = new SenderMessageEvent(data);
+    return postEvent(ev);
 }
 
 
-void Decoder::processData()
+int Decoder::processEvent(DecoderEvent *ev)
 {
-    std::string data = receiverFIFO.get();
-    msg("Data received: " + std::to_string(data.length()));
+    int ret = ev->updateDecoder(this);
+    delete ev;
+    return ret;
+}
 
-    if (data.empty())
-        return;
 
-    if (data == std::string("hello"))
+int Decoder::processMessage(std::string msg)
+{
+    if (msg == std::string("hello"))
     {
         // Send a hello back
         senderFIFO.put(std::string("hello"));
     }
-    else if (uint8Decode(data, 0) == UNCOMPRESSED_TRANSMISSION_BLOCK)
+    else if (uint8Decode(msg, 0) == UNCOMPRESSED_TRANSMISSION_BLOCK)
     {
-        decodeUncompressedBlock(data.substr(1));
+        decodeUncompressedBlock(msg.substr(1));
     }
+
+    return VLVIZ_SUCCESS;
 }
 
 

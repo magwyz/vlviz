@@ -30,19 +30,18 @@ void Receiver::threadFunc()
 
     while (true)
     {
-        decoder.processData();
-
         auto curTime = std::chrono::system_clock::now();
 
         if (std::chrono::duration_cast<std::chrono::milliseconds>(curTime - lastTime)
             > std::chrono::milliseconds(16))
         {
             cv::imshow("Decoded frame", decoder.curFrame.getRawFrame().getRGBMat());
-            if (cv::waitKey(1) == 27)
+            if (cv::waitKey(10) == 27)
                 break;
             lastTime = curTime;
         }
     }
 
+    decoder.stop();
     socket.closeSocket();
 }

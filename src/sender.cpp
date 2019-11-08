@@ -56,6 +56,6 @@ void Sender::threadFunc()
             break;
     }
 
-    encoder.stopEncoder();
+    encoder.stop();
     socket.closeSocket();
 }

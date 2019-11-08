@@ -13,25 +13,12 @@
 
 
 Encoder::Encoder(unsigned width, unsigned height)
-    : stop(false),
-      width(width), height(height),
-      hasClient(false)
+    : width(width), height(height),
+      hasClient(false),
+      lastDisplayTime(std::chrono::system_clock::now())
 {
     nbTransBlockX = width / TRANSMISSION_BLOCK_SIZE;
     nbTransBlockY = height / TRANSMISSION_BLOCK_SIZE;
-
-    t = std::thread(&Encoder::processThread, this);
-}
-
-
-void Encoder::stopEncoder()
-{
-    {
-        std::lock_guard<std::mutex> lock(stopMutex);
-        stop = true;
-        eventsCondVar.notify_one();
-    }
-    t.join();
 }
 
 
@@ -42,76 +29,49 @@ int Encoder::postNewMessage(std::string data)
 }
 
 
-int Encoder::postEvent(EncoderEvent *ev)
+int Encoder::processEvent(EncoderEvent *ev)
 {
-    {
-        std::lock_guard<std::mutex> lock(stopMutex);
-        events.push_back(ev);
-        eventsCondVar.notify_one();
-    }
+    ev->updateEncoder(this);
+    delete ev;
 
+    // Encode a part of the frame.
+    if (!hasClient)
+    {
+        std::string data("hello");
+        senderFIFO.put(data);
+    }
+    else
+    {
+        // Send a new block
+        if (rankedTransBlock.empty())
+            return VLVIZ_SUCCESS;
+
+        const RankedTransBlock &rtb = rankedTransBlock.top();
+        unsigned bi = rtb.bi;
+        unsigned bj = rtb.bj;
+        rankedTransBlock.pop();
+
+        msg("Most diff block: " + std::to_string(bi) + " " + std::to_string(bj));
+
+        reconstructBlock(bi, bj);
+
+        auto curTime = std::chrono::system_clock::now();
+
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(curTime - lastDisplayTime)
+            > std::chrono::milliseconds(16))
+        {
+            msg("Display reconstructed frame");
+            imshow("Reconstructed frame", reconstructedFrame.getRawFrame().getRGBMat());
+            lastDisplayTime = curTime;
+        }
+
+        std::string packet = uint8Encode(UNCOMPRESSED_TRANSMISSION_BLOCK)
+            + uint8Encode(bi) + uint8Encode(bj)
+            + getUncompressedBlockData(bi, bj);
+        senderFIFO.put(packet);
+        sendTickEvent(100);
+    }
     return VLVIZ_SUCCESS;
-}
-
-
-void Encoder::processThread()
-{
-    auto lastTime = std::chrono::system_clock::now();
-
-    while (true)
-    {
-        std::unique_lock<std::mutex> lk(stopMutex);
-        eventsCondVar.wait(lk, [&]{return !events.empty() || stop;});
-
-        if (stop)
-            break;
-
-        EncoderEvent *ev = events.front();
-        events.pop_front();
-        lk.unlock();
-        eventsCondVar.notify_one();
-
-        ev->updateEncoder(this);
-        delete ev;
-
-        // Encode a part of the frame.
-        if (!hasClient)
-        {
-            std::string data("hello");
-            senderFIFO.put(data);
-        }
-        else
-        {
-            // Send a new block
-            if (rankedTransBlock.empty())
-                continue;
-
-            const RankedTransBlock &rtb = rankedTransBlock.top();
-            unsigned bi = rtb.bi;
-            unsigned bj = rtb.bj;
-            rankedTransBlock.pop();
-
-            msg("Most diff block: " + std::to_string(bi) + " " + std::to_string(bj));
-
-            reconstructBlock(bi, bj);
-
-            auto curTime = std::chrono::system_clock::now();
-
-            if (std::chrono::duration_cast<std::chrono::milliseconds>(curTime - lastTime)
-                > std::chrono::milliseconds(16))
-            {
-                msg("Display reconstructed frame");
-                imshow("Reconstructed frame", reconstructedFrame.getRawFrame().getRGBMat());
-                lastTime = curTime;
-            }
-
-            std::string packet = uint8Encode(UNCOMPRESSED_TRANSMISSION_BLOCK)
-                + uint8Encode(bi) + uint8Encode(bj)
-                + getUncompressedBlockData(bi, bj);
-            senderFIFO.put(packet);
-            sendTickEvent(100);
-        }
-    }
 }
 
 

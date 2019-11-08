@@ -1,14 +1,11 @@
 #ifndef ENCODER_H
 #define ENCODER_H
 
-#include <thread>
-#include <mutex>
-#include <deque>
-
 #include <opencv2/opencv.hpp>
 
 #include "messagehandler.h"
 #include "quantizedframe.h"
+#include "eventhandler.h"
 
 class EncoderEvent;
 
@@ -31,35 +28,25 @@ public:
 };
 
 
-class Encoder : public MessageHandler
+class Encoder : public MessageHandler, public EventHandler<EncoderEvent>
 {
 public:
     Encoder(unsigned width, unsigned height);
 
     int addFrame(cv::Mat frame);
-    void stopEncoder();
     int postNewMessage(std::string data);
-    int postEvent(EncoderEvent *ev);
 
     friend class NewFrameEvent;
     friend class ClientMessageEvent;
 
 private:
-    void processThread();
+    int processEvent(EncoderEvent *ev);
     std::string getUncompressedBlockData(unsigned bi, unsigned bj);
     void sendTickEvent(int timeMs);
     uint64_t computeSAD(unsigned xStart, unsigned xEnd,
                         unsigned yStart, unsigned yEnd);
     void reconstructBlock(unsigned bi, unsigned bj);
     void rankDiffTransBlock();
-
-    std::thread t;
-
-    bool stop;
-    std::mutex stopMutex;
-
-    std::deque<EncoderEvent *> events;
-    std::condition_variable eventsCondVar;
 
     QuantizedFrame curCapturedFrame; // Current quantized captured frame
     QuantizedFrame reconstructedFrame; // Current quantized reconstructed frame
@@ -70,6 +57,8 @@ private:
     bool hasClient; // A client is ready to receive the data we send.
 
     std::priority_queue<RankedTransBlock> rankedTransBlock;
+
+    std::chrono::time_point<std::chrono::system_clock> lastDisplayTime;
 };
 
 #endif // ENCODER_H

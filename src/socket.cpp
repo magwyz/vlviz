@@ -72,10 +72,6 @@ void Socket::recvThread()
     FD_ZERO(&stReadFDS);
     FD_ZERO(&stExcepFDS);
 
-    // Timeout of one second
-    stTimeOut.tv_sec = 1;
-    stTimeOut.tv_usec = 0;
-
     while (true)
     {
         {
@@ -83,6 +79,10 @@ void Socket::recvThread()
             if (stop)
                 break;
         }
+
+        // Timeout of one second
+        stTimeOut.tv_sec = 1;
+        stTimeOut.tv_usec = 0;
 
         FD_SET(sock, &stReadFDS);
         FD_SET(sock, &stExcepFDS);

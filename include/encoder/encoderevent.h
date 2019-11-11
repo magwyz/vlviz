@@ -18,6 +18,8 @@ public:
      * @return error
      */
     virtual int updateEncoder(Encoder *encoder) = 0;
+    virtual ~EncoderEvent()
+    { };
 };
 
 

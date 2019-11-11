@@ -14,6 +14,8 @@ public:
      * @return error
      */
     virtual int updateDecoder(Decoder *decoder) = 0;
+    virtual ~DecoderEvent()
+    { };
 };
 
 
